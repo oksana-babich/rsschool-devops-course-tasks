@@ -37,11 +37,11 @@ jobs:
         uses: hashicorp/setup-terraform@v2
 
       - name: Configure AWS credentials from OIDC
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsRole
           aws-region: eu-central-1
-          audience: ${{ secrets.CLIENT_ID_LIST }}
+          # audience: ${{ secrets.CLIENT_ID_LIST }}
 
       - name: Create tfvars file
         run: |
@@ -75,11 +75,11 @@ jobs:
         uses: hashicorp/setup-terraform@v2
 
       - name: Configure AWS credentials from OIDC
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsRole
           aws-region: eu-central-1
-          audience: ${{ secrets.CLIENT_ID_LIST }}
+         # audience: ${{ secrets.CLIENT_ID_LIST }}
 
       - name: Create tfvars file
         run: |
