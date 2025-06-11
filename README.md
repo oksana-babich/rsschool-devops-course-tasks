@@ -1,5 +1,7 @@
 # rsschool-devops-course-tasks
 DevOps Course
+
+![Terraform CI/CD](https://github.com/oksana-babich/rsschool-devops-course-tasks/actions/workflows/terraform.yaml/badge.svg)
 ______________________________________________
 ## Project Overview
 
