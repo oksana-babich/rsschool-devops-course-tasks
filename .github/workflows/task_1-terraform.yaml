@@ -53,18 +53,12 @@ jobs:
       - name: Create tfvars file
         run: |
           cat << EOF > terraform.tfvars
-          bucket_name = ${{ secrets.BUCKET_NAME }}
-          
+          bucket_name = "${{ secrets.BUCKET_NAME }}"
           client_id_list = ${{ secrets.CLIENT_ID_LIST }}
-          
           thumbprint_list = ${{ secrets.THUMBPRINT_LIST }}
-          
-          github_actions_role_name = ${{ secrets.ACTIONS_ROLE_NAME }}
-          
-          oidc_provider_url = ${{ secrets.OIDC_PROVIDER_URL }}
-          
-          github_actions_condition = ${{ secrets.ACTIONS_CONDITION }}
-          
+          github_actions_role_name = "${{ secrets.ACTIONS_ROLE_NAME }}"
+          oidc_provider_url = "${{ secrets.OIDC_PROVIDER_URL }}"
+          github_actions_condition = "${{ secrets.ACTIONS_CONDITION }}"
           iam_policies = ${{ secrets.IAM_POLICIES }}
           EOF
 
