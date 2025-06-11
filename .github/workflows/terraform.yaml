@@ -39,8 +39,9 @@ jobs:
       - name: Configure AWS credentials from OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::867344470531:role/GithubActionsRole
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsRole
           aws-region: eu-central-1
+          audience: ${{ secrets.CLIENT_ID_LIST }}
 
       - name: Create tfvars file
         run: |
@@ -76,8 +77,9 @@ jobs:
       - name: Configure AWS credentials from OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::867344470531:role/GithubActionsRole
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsRole
           aws-region: eu-central-1
+          audience: ${{ secrets.CLIENT_ID_LIST }}
 
       - name: Create tfvars file
         run: |
