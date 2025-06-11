@@ -4,7 +4,7 @@ resource "aws_s3_bucket" "remote_state" {
 
 
   tags = {
-    Name        = "Remote State Bucket for DevOps Course"
-    Owner       = "Aksana Babich"
+    Name  = "Remote State Bucket for DevOps Course"
+    Owner = "Aksana Babich"
   }
 }

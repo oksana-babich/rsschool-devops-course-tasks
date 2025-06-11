@@ -1,6 +1,6 @@
 #Adding OIDC provider for GitHub Actions, trust the GitHub Actions OIDC provider to allow it to assume the role.
 resource "aws_iam_openid_connect_provider" "github" {
-  url = var.oidc_provider_url
+  url             = var.oidc_provider_url
   client_id_list  = var.client_id_list
   thumbprint_list = var.thumbprint_list
 }
@@ -27,7 +27,7 @@ resource "aws_iam_role" "github_actions_role" {
     ]
   })
 
-#attaching policies to the role to allow it to perform actions on AWS services.
+  #attaching policies to the role to allow it to perform actions on AWS services.
   tags = {
     Name = var.github_actions_role_name
   }
