@@ -1,5 +1,5 @@
 # Terraform state files
 *.tfstate
 *.tfstate.*
-.terraform/
-terraform.tfvars
+../.terraform/
+../task_1/terraform.tfvars

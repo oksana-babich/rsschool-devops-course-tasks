@@ -8,6 +8,8 @@ on:
   pull_request:
     branches:
       - main
+env:
+  AWS_REGION: eu-central-1
 
 permissions:
   id-token: write
@@ -17,15 +19,14 @@ jobs:
   terraform-check:
     name: Terraform Format Check
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./task_1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.12.1"
 
       - name: Terraform fmt check
         run: terraform fmt -check
@@ -34,9 +35,6 @@ jobs:
     name: Terraform Plan
     runs-on: ubuntu-latest
     needs: terraform-check
-    defaults:
-      run:
-        working-directory: ./task_1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -48,7 +46,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsRole
-          aws-region: eu-central-1
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Create tfvars file
         run: |
@@ -73,9 +71,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: terraform-plan
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    defaults:
-      run:
-        working-directory: ./task_1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -87,7 +82,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsRole
-          aws-region: eu-central-1
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Create tfvars file
         run: |
