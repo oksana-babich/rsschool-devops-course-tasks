@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - task_2
 
   pull_request:
     branches:
@@ -93,6 +94,7 @@ jobs:
           oidc_provider_url = "${{ secrets.OIDC_PROVIDER_URL }}"
           github_actions_condition = "${{ secrets.ACTIONS_CONDITION }}"
           iam_policies = ${{ secrets.IAM_POLICIES }}
+          key_name = ${{ secrets.KEY_NAME }}
           EOF
 
       - name: Terraform Init

@@ -5,72 +5,138 @@ DevOps Course
 ______________________________________________
 ## Project Overview
 
-This repository contains Terraform code and GitHub Actions workflows to automate AWS infrastructure deployment
-The project includes AWS CLI and Terraform installation, IAM user and role configuration, Terraform state management using S3, and secure authentication via GitHub Actions OIDC
+This project contains Terraform configuration for creating AWS infrastructure with automated CI/CD pipeline through GitHub Actions.
 
-## Features
-- AWS CLI v2 and Terraform 1.6+ installation instructions
-- Creation of IAM user with necessary permissions and MFA enabled
-- AWS CLI configured with IAM user credentials
-- Terraform state stored in an S3 bucket
-- DynamoDB table for Terraform state locking 
-- IAM role for GitHub Actions configured with proper trust policies for OIDC authentication
-- GitHub Actions workflows with the following jobs:
-    - `terraform-check`
-    - `terraform-plan`
-    - `terraform-apply`
+## 🏗️ Infrastructure Architecture
 
-## Getting Started
+The infrastructure includes the following components:
 
-### 1. Install AWS CLI and Terraform
-- Follow the official guide to install AWS CLI v2:  
-  https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
+### Network Infrastructure
+- **VPC** - isolated virtual network
+- **Public Subnets** - for resources with internet access
+- **Private Subnets** - for internal resources
+- **Internet Gateway** - for internet access
+- **NAT Gateway** - for outbound traffic from private subnets
+- **Route Tables** - traffic routing
 
-- Install Terraform 1.6 or higher:  
-  https://learn.hashicorp.com/tutorials/terraform/install-cli
+### Compute Resources
+- **EC2 Instances** - virtual machines (including bastion host)
+- **Security Groups** - firewall rules
+- **ACL** - additional network security layer
 
-### 2. Create IAM User and Configure MFA
-- Create an IAM user with appropriate permissions 
-- Enable MFA on both the new user and the root account
-- Generate Access Key ID and Secret Access Key for the IAM user
+### State Management
+- **S3 Bucket** - for storing Terraform state
+- **Remote State Backend** - centralized state management
 
-### 3. Configure AWS CLI
-- Run `aws configure` and enter the Access Key ID, Secret Access Key, default region, and output format
-- Ensure the AWS CLI is configured to use the IAM user credentials
-- Verify the configuration by running `aws sts get-caller-identity`
+### CI/CD
+- **GitHub Actions** - deployment automation
+- **OIDC Provider** - secure authentication with AWS
+- **IAM Roles** - access management for GitHub Actions
 
-### 4. Create a bucket fot Terraform states
-- Create an S3 bucket using Terraform to store the state file
-- Set `prevent_destroy` for the S3 bucket in your Terraform configuration
-- Configure the backend to use the created S3 bucket and enable state locking via a DynamoDB table
+## 📋 Prerequisites
 
-### 5. Set Up GitHub Repository Secrets
-- Create a `.tfvars` file for local variables (don't commit this file to the repository)
-- Add the following secrets to your GitHub repository:
-    - `ACTIONS_CONDITION`
-    - `ACTIONS_ROLE_NAME`
-    - `AWS_ACCOUNT_ID`
-    - `BUCKET_NAME`
-    - `CLIENT_ID_LIST`
-    - `IAM_POLICIES`
-    - `OIDC_PROVIDER_URL`
-    - `THUMBPRINT_LIST`
+- AWS account with appropriate permissions
+- Terraform >= 1.12.1
+- GitHub repository with configured secrets
 
-### 6. Create an IAM role for Github Actions
-- Create an IAM role for Github Actions with appropriate permissions (managed via secrets)
+## 🔧 GitHub Secrets Configuration
 
-### 7. Configure an Identity Provider and Trust policies for Github Actions
-- Set up the OIDC identity provider and update the trust policy for the IAM role accordingly
+The following secrets need to be configured in GitHub:
+```
+AWS_ACCOUNT_ID - Your AWS account 
+ID BUCKET_NAME - S3 bucket name for Terraform state 
+CLIENT_ID_LIST - List of client IDs for OIDC 
+THUMBPRINT_LIST - List of thumbprints for OIDC 
+ACTIONS_ROLE_NAME - IAM role name for GitHub Actions 
+OIDC_PROVIDER_URL - OIDC provider URL 
+ACTIONS_CONDITION - OIDC conditions 
+IAM_POLICIES - List of IAM policies 
+KEY_NAME - EC2 Key Pair name
+``` 
 
-### 8. GitHub Actions Workflows
-- Workflows are configured to automatically:
-  - Validate Terraform code formatting on merge or push to the main branch
-  - Plan Terraform changes on merge or push to the main branch
-  - Apply Terraform changes on push to the main branch
+## 🚀 Deployment
 
-## Repository Structure
-- / — Terraform configurations
-- .github/workflows/ — GitHub Actions workflow definitions
+### Automatic Deployment
+
+1. **Push to `main` branch** - triggers full pipeline
+2. **Pull Request** - triggers validation and planning
+
+### Manual Deployment
+
+```bash
+# Initialize Terraform
+terraform init
+
+# Create variables file
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your values
+
+# Plan changes
+terraform plan
+
+# Apply changes
+terraform apply
+```
+
+## 📁 Project Structure
+``` 
+.
+├── .github/
+│   └── workflows/
+│       └── terraform.yaml          # CI/CD pipeline
+├── acl.tf                          # Network ACL configuration
+├── ec2.tf                          # EC2 instances
+├── vpc.tf                          # VPC configuration
+├── nat_gateway.tf                  # NAT Gateway
+├── security_groups.tf              # Security Groups
+├── route_table_public_subnets.tf   # Routes for public subnets
+├── route_table_private_subnets.tf  # Routes for private subnets
+├── github_actions_role.tf          # IAM role for GitHub Actions
+├── remote_state_backend.tf         # Backend for Terraform state
+├── S3Bucket_Creation_ForRemoteState.tf # S3 bucket for state
+├── variables.tf                    # Variables
+├── outputs.tf                      # Output values
+└── README.md                       # This file
+```
+## 🔒 Security
+- Using OIDC for GitHub Actions authentication with AWS
+- Principle of least privilege for IAM roles
+- Separation of public and private subnets
+- Configured Security Groups and Network ACLs
+
+## 📊 Outputs
+After successful deployment, the following output values are available:
+- - ID of the created VPC `vpc_id`
+- - Availability Zone of public subnet 1 `public_subnet_1_AZ`
+- - Availability Zone of public subnet 2 `public_subnet_2_AZ`
+- - Availability Zone of private subnet 1 `private_subnet_1_AZ`
+- - Availability Zone of private subnet 2 `private_subnet_2_AZ`
+
+## 🔄 CI/CD Pipeline
+The pipeline consists of three stages:
+1. **Format Check** - validates Terraform code formatting
+2. **Plan** - creates execution plan
+3. **Apply** - applies changes (only for main branch)
+
+## 🌍 Deployment Region
+By default, the infrastructure is deployed in the region (Frankfurt). `eu-central-1`
+## 🛠️ Development
+Before making changes:
+1. Create a new branch
+2. Make your changes
+3. Run `terraform fmt` for formatting
+4. Create a Pull Request
+
+## 📝 Notes
+- Terraform state is stored remotely in S3
+- All sensitive data is stored in GitHub Secrets
+- Infrastructure follows AWS Well-Architected Framework best practices
+
+## 🤝 Support
+If you encounter issues:
+1. Check GitHub Actions logs
+2. Verify secrets configuration
+3. Check IAM role permissions
 
 ## Contact
 For questions, reach out to: anikejoksana@gmail.com

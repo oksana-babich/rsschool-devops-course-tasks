@@ -37,4 +37,7 @@ variable "iam_policies" {
   description = "List of IAM policies to attach to the role"
   type        = list(string)
 }
-
+variable "key_name" {
+  description = "SSH key pair name"
+  type = string
+}
