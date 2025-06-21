@@ -12,16 +12,16 @@ resource "aws_vpc" "DevOps_course_vpc" {
   enable_dns_hostnames = true
 
   tags = {
-    Name  = "VPC for DevOps-Course"
+    Name = "VPC for DevOps-Course"
   }
 }
 
 resource "aws_internet_gateway" "course_igw" {
   vpc_id = aws_vpc.DevOps_course_vpc.id
 
-    tags = {
-        Name  = "IGW for DevOps-Course"
-    }
+  tags = {
+    Name = "IGW for DevOps-Course"
+  }
 }
 
 data "aws_availability_zones" "available" {
@@ -29,13 +29,13 @@ data "aws_availability_zones" "available" {
 }
 
 resource "aws_subnet" "public_subnet_1" {
-    vpc_id                  = aws_vpc.DevOps_course_vpc.id
-    cidr_block              = "10.0.1.0/24"
-    availability_zone       = data.aws_availability_zones.available.names[0]
-    map_public_ip_on_launch = true
-    tags = {
-        Name  = "Public Subnet 1 for DevOps-Course in AZ1"
-    }
+  vpc_id                  = aws_vpc.DevOps_course_vpc.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = data.aws_availability_zones.available.names[0]
+  map_public_ip_on_launch = true
+  tags = {
+    Name = "Public Subnet 1 for DevOps-Course in AZ1"
+  }
 }
 
 resource "aws_subnet" "public_subnet_2" {

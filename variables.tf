@@ -39,5 +39,5 @@ variable "iam_policies" {
 }
 variable "key_name" {
   description = "SSH key pair name"
-  type = string
+  type        = string
 }

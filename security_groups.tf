@@ -32,22 +32,22 @@ resource "aws_security_group" "bastion_sg" {
 }
 
 resource "aws_security_group" "private_sg" {
-  name = "private_sg"
+  name   = "private_sg"
   vpc_id = aws_vpc.DevOps_course_vpc.id
 
   ingress {
-    description = "SSH from bastion"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
+    description     = "SSH from bastion"
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
     security_groups = [aws_security_group.bastion_sg.id]
   }
 
   ingress {
-    description = "ICMP from bastion"
-    from_port   = -1
-    to_port     = -1
-    protocol    = "icmp"
+    description     = "ICMP from bastion"
+    from_port       = -1
+    to_port         = -1
+    protocol        = "icmp"
     security_groups = [aws_security_group.bastion_sg.id]
   }
 
@@ -81,7 +81,7 @@ resource "aws_security_group" "private_sg" {
 }
 
 resource "aws_security_group" "public_sg" {
-  name = "public_sg"
+  name   = "public_sg"
   vpc_id = aws_vpc.DevOps_course_vpc.id
 
   ingress {
@@ -113,14 +113,14 @@ resource "aws_security_group" "public_sg" {
 }
 
 resource "aws_security_group" "public_restricted_sg" {
-  name = "public_restricted_sg"
+  name   = "public_restricted_sg"
   vpc_id = aws_vpc.DevOps_course_vpc.id
 
   ingress {
-    description = "SSH from bastion only"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
+    description     = "SSH from bastion only"
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
     security_groups = [aws_security_group.bastion_sg.id]
   }
 

@@ -55,7 +55,7 @@ resource "aws_network_acl_rule" "public_in_ephemeral" {
   egress         = false
   protocol       = "6"
   rule_action    = "allow"
-  cidr_block    = "0.0.0.0/0"
+  cidr_block     = "0.0.0.0/0"
   from_port      = 1024
   to_port        = 65535
 }
