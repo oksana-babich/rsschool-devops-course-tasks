@@ -39,11 +39,6 @@ resource "aws_instance" "Second_public_instance" {
   }
 }
 
-
-locals {
-  control_plane_ip = aws_instance.k3s_control_plane.private_ip
-}
-
 resource "aws_instance" "k3s_control_plane" {
   ami                    = data.aws_ami.latest_ami_ubuntu.id
   instance_type          = "t2.micro"
@@ -56,19 +51,19 @@ resource "aws_instance" "k3s_control_plane" {
               #!/bin/bash
               curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server' K3S_TOKEN=${var.k3s_token} K3S_KUBECONFIG_MODE='644' sh -s -
               EOF
-tags = {
+  tags = {
     Name = "k3s Control Plane"
   }
 }
 
 resource "aws_instance" "k3s_worker_node" {
-  depends_on = [aws_instance.k3s_control_plane]
+  depends_on             = [aws_instance.k3s_control_plane]
   ami                    = data.aws_ami.latest_ami_ubuntu.id
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.private_subnet_2.id
   vpc_security_group_ids = [aws_security_group.private_sg.id]
   key_name               = var.key_name
-  user_data = <<-EOF
+  user_data              = <<-EOF
               #!/bin/bash
               K3S_URL="https://${aws_instance.k3s_control_plane.private_ip}:6443"
               curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="agent --server $K3S_URL --token ${var.k3s_token}" sh -s -

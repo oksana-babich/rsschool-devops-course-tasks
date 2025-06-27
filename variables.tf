@@ -6,37 +6,37 @@ variable "region" {
 variable "bucket_name" {
   description = "Name of the S3 bucket for remote state"
   type        = string
-  sensitive = true
+  sensitive   = true
 }
 
 variable "oidc_provider_url" {
   description = "URL of the OIDC provider"
   type        = string
-  sensitive = true
+  sensitive   = true
 }
 
 variable "client_id_list" {
   description = "List of client IDs for the OIDC provider"
   type        = list(string)
-  sensitive = true
+  sensitive   = true
 }
 
 variable "thumbprint_list" {
   description = "List of thumbprints for the OIDC provider"
   type        = list(string)
-  sensitive = true
+  sensitive   = true
 }
 
 variable "github_actions_role_name" {
   description = "Name of the IAM role for GitHub Actions"
   type        = string
-  sensitive = true
+  sensitive   = true
 }
 
 variable "github_actions_condition" {
   description = "Condition for the GitHub Actions trust policy"
   type        = string
-  sensitive = true
+  sensitive   = true
 }
 
 variable "iam_policies" {
@@ -47,17 +47,11 @@ variable "iam_policies" {
 variable "key_name" {
   description = "SSH key pair name"
   type        = string
-  sensitive = true
-}
-
-variable "private_key_path" {
-    description = "Path to the private key file for SSH access"
-    type        = string
-  sensitive = true
+  sensitive   = true
 }
 
 variable "k3s_token" {
-    description = "Token for k3s cluster authentication"
-    type        = string
-    sensitive = true
+  description = "Token for k3s cluster authentication"
+  type        = string
+  sensitive   = true
 }

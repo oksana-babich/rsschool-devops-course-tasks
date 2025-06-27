@@ -58,17 +58,10 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsRole
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Write SSH private key
-        run: |
-          echo "${{ secrets.WEBSERVER_LINUX_PRIVATE_KEY }}" > /tmp/bastion_key.pem
-          chmod 600 /tmp/bastion_key.pem      
-
       - name: Terraform Init
         run:  terraform init
 
       - name: Terraform Plan
-        env:
-          TF_VAR_private_key_path: /tmp/bastion_key.pem
         run:  terraform plan
 
   terraform-apply:
@@ -88,15 +81,8 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsRole
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Write SSH private key
-        run: |
-             echo "${{ secrets.WEBSERVER_LINUX_PRIVATE_KEY }}" > /tmp/bastion_key.pem
-             chmod 600 /tmp/bastion_key.pem
-
       - name: Terraform Init
         run: terraform init
 
       - name: Terraform Apply
-        env:
-          TF_VAR_private_key_path: /tmp/bastion_key.pem
         run: terraform apply -auto-approve
