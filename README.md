@@ -161,6 +161,49 @@ If you encounter issues:
 3. Check IAM role permissions
 4. Verify SSH and Security Group access
 
+## 🧪 Jenkins Deployment on Minikube
+Installing and configuring Jenkins on a local Minikube Kubernetes cluster using Helm. The key steps and deliverables are:
+- Install Helm and verify it by deploying/removing the Bitnami Nginx chart
+- Prepare Minikube cluster with Persistent Volume support
+- Deploy Jenkins in a dedicated jenkins namespace using a custom Helm chart and values file
+- Configure Jenkins using Jenkins Configuration as Code (JCasC) to automatically create a "Hello World" freestyle job
+- Ensure Jenkins is accessible via web browser
+- Verify the Jenkins job runs successfully and logs "Hello world"
+
+### Requirements
+- Minikube
+- Helm 3.x
+- kubectl
+- Docker (for Minikube)
+
+### Installation and Verification
+Install Helm ([official guide](https://helm.sh/docs/intro/install/))and verify by deploying the Nginx chart:
+```bash
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install test-nginx bitnami/nginx
+helm uninstall test-nginx
+```
+Start Minikube and ensure PV/PVC support:
+```bash
+minikube start
+```
+Add Jenkins Helm repository and install Jenkins in its namespace:
+```bash
+helm repo add jenkins https://charts.jenkins.io
+helm repo update
+kubectl create namespace jenkins
+helm upgrade --install jenkins jenkins/jenkins -n jenkins -f jenkins-values.yaml
+```
+Access Jenkins UI via browser (e.g., ```minikube service jenkins -n jenkins --url```)
+
+### Configuration Highlights
+- Jenkins jobs and settings are managed through JCasC in the Helm chart values file ```jenkins-values.yaml```
+- "Hello World" freestyle job created automatically via JCasC configuration
+
+### Verification
+- Confirm Jenkins pods are running with ```kubectl get pods -n jenkins```
+- Run the "Hello World" job and check logs for correct output
+
 ## Contact
 For questions, reach out to: anikejoksana@gmail.com
 
