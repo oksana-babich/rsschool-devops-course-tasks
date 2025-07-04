@@ -6,6 +6,8 @@ ______________________________________________
 ## Project Overview
 
 This project contains Terraform configuration for creating AWS infrastructure with automated CI/CD pipeline through GitHub Actions.
+It also includes the setup and verification of a lightweight Kubernetes cluster (k3s) deployed on EC2 instances, accessible via a bastion host.
+
 
 ## 🏗️ Infrastructure Architecture
 
@@ -20,7 +22,7 @@ The infrastructure includes the following components:
 - **Route Tables** - traffic routing
 
 ### Compute Resources
-- **EC2 Instances** - virtual machines (including bastion host)
+- **EC2 Instances** - virtual machines (including: bastion host and k3s control plane and worker nodes)
 - **Security Groups** - firewall rules
 - **ACL** - additional network security layer
 
@@ -33,11 +35,32 @@ The infrastructure includes the following components:
 - **OIDC Provider** - secure authentication with AWS
 - **IAM Roles** - access management for GitHub Actions
 
+### Kubernetes Cluster with k3s
+🚀 Deployment
+- **Deployed via EC2 Instances** - using AWS Free Tier
+- **Lightweight K3s Distribution** – installed on EC2
+- **Access via Bastion Host** – SSH access and kubectl commands
+- **Local Access** – configure SSH tunneling to interact from local machine
+
+### ✅ Cluster Verification
+- Confirmed cluster with kubectl get nodes on bastion host
+- Deployed a test workload with:
+```
+  kubectl apply -f https://k8s.io/examples/pods/simple-pod.yaml
+```
+
+### 🔐 Security
+- SSH access only via Bastion
+- Security Groups restrict access to necessary ports (22, 6443, etc.)
+- IAM roles limited to required resources only
+
 ## 📋 Prerequisites
 
 - AWS account with appropriate permissions
 - Terraform >= 1.12.1
 - GitHub repository with configured secrets
+- SSH key pair for EC2 instances
+- kubectl for cluster interaction
 
 ## 🔧 GitHub Secrets Configuration
 
@@ -52,7 +75,8 @@ OIDC_PROVIDER_URL - OIDC provider URL
 ACTIONS_CONDITION - OIDC conditions 
 IAM_POLICIES - List of IAM policies 
 KEY_NAME - EC2 Key Pair name
-``` 
+K3S_TOKEN - Shared secret token used by K3s server and agent nodes for cluster join
+```
 
 ## 🚀 Deployment
 
@@ -62,14 +86,12 @@ KEY_NAME - EC2 Key Pair name
 2. **Pull Request** - triggers validation and planning
 
 ### Manual Deployment
-
-```bash
+1. Clone this repository
+2. Configure your `terraform.tfvars`
+3. Run:
+```
 # Initialize Terraform
 terraform init
-
-# Create variables file
-cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars with your values
 
 # Plan changes
 terraform plan
@@ -85,10 +107,10 @@ terraform apply
 │   └── workflows/
 │       └── terraform.yaml          # CI/CD pipeline
 ├── acl.tf                          # Network ACL configuration
-├── ec2.tf                          # EC2 instances
+├── ec2.tf                          # EC2 instances (bastion host, k3s nodes)
 ├── vpc.tf                          # VPC configuration
 ├── nat_gateway.tf                  # NAT Gateway
-├── security_groups.tf              # Security Groups
+├── security_groups.tf              # Security Groups configuration
 ├── route_table_public_subnets.tf   # Routes for public subnets
 ├── route_table_private_subnets.tf  # Routes for private subnets
 ├── github_actions_role.tf          # IAM role for GitHub Actions
@@ -137,6 +159,7 @@ If you encounter issues:
 1. Check GitHub Actions logs
 2. Verify secrets configuration
 3. Check IAM role permissions
+4. Verify SSH and Security Group access
 
 ## Contact
 For questions, reach out to: anikejoksana@gmail.com

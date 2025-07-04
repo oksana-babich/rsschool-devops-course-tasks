@@ -4,13 +4,22 @@ on:
   push:
     branches:
       - main
-      - task_2
+      - task_3
 
   pull_request:
     branches:
       - main
 env:
   AWS_REGION: eu-central-1
+  TF_VAR_bucket_name: ${{ secrets.BUCKET_NAME }}
+  TF_VAR_client_id_list: ${{ secrets.CLIENT_ID_LIST }}
+  TF_VAR_thumbprint_list: ${{ secrets.THUMBPRINT_LIST }}
+  TF_VAR_github_actions_role_name: ${{ secrets.ACTIONS_ROLE_NAME }}
+  TF_VAR_oidc_provider_url: ${{ secrets.OIDC_PROVIDER_URL }}
+  TF_VAR_github_actions_condition: ${{ secrets.ACTIONS_CONDITION }}
+  TF_VAR_iam_policies: ${{ secrets.IAM_POLICIES }}
+  TF_VAR_key_name: ${{ secrets.KEY_NAME }}
+  TF_VAR_k3s_token: ${{ secrets.K3S_TOKEN }}
 
 permissions:
   id-token: write
@@ -49,19 +58,6 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsRole
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Create tfvars file
-        run: |
-          cat << EOF > terraform.tfvars
-          bucket_name = "${{ secrets.BUCKET_NAME }}"
-          client_id_list = ${{ secrets.CLIENT_ID_LIST }}
-          thumbprint_list = ${{ secrets.THUMBPRINT_LIST }}
-          github_actions_role_name = "${{ secrets.ACTIONS_ROLE_NAME }}"
-          oidc_provider_url = "${{ secrets.OIDC_PROVIDER_URL }}"
-          github_actions_condition = "${{ secrets.ACTIONS_CONDITION }}"
-          iam_policies = ${{ secrets.IAM_POLICIES }}
-          key_name = "${{ secrets.KEY_NAME }}"
-          EOF
-
       - name: Terraform Init
         run:  terraform init
 
@@ -84,19 +80,6 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsRole
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Create tfvars file
-        run: |
-          cat << EOF > terraform.tfvars
-          bucket_name = "${{ secrets.BUCKET_NAME }}"
-          client_id_list = ${{ secrets.CLIENT_ID_LIST }}
-          thumbprint_list = ${{ secrets.THUMBPRINT_LIST }}
-          github_actions_role_name = "${{ secrets.ACTIONS_ROLE_NAME }}"
-          oidc_provider_url = "${{ secrets.OIDC_PROVIDER_URL }}"
-          github_actions_condition = "${{ secrets.ACTIONS_CONDITION }}"
-          iam_policies = ${{ secrets.IAM_POLICIES }}
-          key_name = "${{ secrets.KEY_NAME }}"
-          EOF
 
       - name: Terraform Init
         run: terraform init
