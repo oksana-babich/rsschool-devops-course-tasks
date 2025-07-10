@@ -106,6 +106,15 @@ terraform apply
 ├── .github/
 │   └── workflows/
 │       └── terraform.yaml          # CI/CD pipeline
+├── flask_app/                      # Flask application code and Dockerfile
+│   ├── main.py
+│   ├── requirements.txt
+│   ├── Dockerfile
+├── helm_charts/                    # Helm chart for Jenkins 
+│   ├── flask-app/                  # Helm chart for Flask application
+│       └── flask-app/values.yaml
+    ├──jenkins/                     # Jenkins Helm chart
+│       └── jenkins-values.yaml     # Custom values for Jenkins deployment
 ├── acl.tf                          # Network ACL configuration
 ├── ec2.tf                          # EC2 instances (bastion host, k3s nodes)
 ├── vpc.tf                          # VPC configuration
@@ -203,6 +212,89 @@ Access Jenkins UI via browser (e.g., ```minikube service jenkins -n jenkins --ur
 ### Verification
 - Confirm Jenkins pods are running with ```kubectl get pods -n jenkins```
 - Run the "Hello World" job and check logs for correct output
+
+## 🐍 Flask Application Deployment on Minikube with Helm
+
+### Task Objective
+- Create a Docker image for a simple Flask application.
+- Create a Helm chart to deploy the application on Kubernetes (minikube).
+- Deploy the application using Helm.
+- Ensure the application is accessible via a web browser.
+- Document the setup process and store artifacts in git.
+
+---
+
+### Technologies Used
+- Docker (for building the app image)
+- Helm (for managing Kubernetes manifests)
+- Minikube (local Kubernetes cluster)
+- Flask (Python web framework)
+---
+### Implementation Steps
+
+#### 1. Docker Image Creation
+- Used official `python:3.9-slim` base image.
+- Installed dependencies from `requirements.txt`.
+- Application runs with: ```FLASK_APP=main.py flask run --host=0.0.0.0 --port=8080```
+- Built image with:
+```bash
+docker build -t my-flask-app .
+```
+- Tested locally by running:
+```bash
+docker run -p 8080:8080 my-flask-app
+```
+- Application is accessible at ```http://localhost:8080```
+
+#### 2. Helm Chart Creation
+- Created a basic chart using:
+```bash
+helm create flask-app
+```
+- Configured Deployment to use my-flask-app image.
+- Service set as ClusterIP for internal cluster access.
+- Ports and environment variables configured for Flask.
+
+#### 3. Loading Image into Minikube
+- Used local Docker image.
+- Loaded image into Minikube with:
+```bash
+minikube image load my-flask-app
+```
+#### 4. Deploying Application via Helm
+- Installed the chart:
+```bash
+helm install flask-app ./flask-app
+```
+- Verified service and accessed it:
+```bash
+minikube service flask-app
+```
+- Application successfully opened in browser at URL like ```http://127.0.0.1:36171```
+
+##### Testing and Verification
+- Container runs successfully locally.
+- Application is accessible in Kubernetes via minikube service.
+- Pod logs confirm Flask is working correctly.
+- Web page loads as expected in the browser.
+
+#### Quick Start Commands
+```bash
+# Start minikube (if not running)
+minikube start
+
+# Build Docker image
+docker build -t my-flask-app .
+
+# Load image into minikube
+minikube image load my-flask-app
+
+# Install Helm chart
+helm install flask-app ./flask-app
+
+# Open service in browser
+minikube service flask-app
+```
 
 ## Contact
 For questions, reach out to: anikejoksana@gmail.com
