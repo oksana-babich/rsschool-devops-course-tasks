@@ -204,6 +204,7 @@ Access Jenkins UI via browser (e.g., ```minikube service jenkins -n jenkins --ur
 - Confirm Jenkins pods are running with ```kubectl get pods -n jenkins```
 - Run the "Hello World" job and check logs for correct output
 
+
 ## Contact
 For questions, reach out to: anikejoksana@gmail.com
 
