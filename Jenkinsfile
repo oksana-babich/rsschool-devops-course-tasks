@@ -130,6 +130,7 @@ pipeline {
                         --set image.repository=aksanababich1/rsschool-flask-app \
                         --set image.tag=\${BUILD_NUMBER} \
                         --set image.pullPolicy=IfNotPresent
+                        --set serviceAccount.create=false
                 """
             }
         }
