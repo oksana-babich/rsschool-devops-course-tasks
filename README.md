@@ -10,7 +10,6 @@ It also includes the setup and verification of a lightweight Kubernetes cluster 
 This project is configured for automated build and deployment using Jenkins and Helm.
 
 
-
 ## 🏗️ Infrastructure Architecture
 
 The infrastructure includes the following components:
