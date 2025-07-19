@@ -1,4 +1,4 @@
-# rsschool-devops-course-tasks
+добавь # rsschool-devops-course-tasks
 DevOps Course
 
 ![Terraform CI/CD](https://github.com/oksana-babich/rsschool-devops-course-tasks/actions/workflows/terraform.yaml/badge.svg)
@@ -7,6 +7,8 @@ ______________________________________________
 
 This project contains Terraform configuration for creating AWS infrastructure with automated CI/CD pipeline through GitHub Actions.
 It also includes the setup and verification of a lightweight Kubernetes cluster (k3s) deployed on EC2 instances, accessible via a bastion host.
+This project is configured for automated build and deployment using Jenkins and Helm.
+
 
 
 ## 🏗️ Infrastructure Architecture
@@ -110,11 +112,14 @@ terraform apply
 │   ├── main.py
 │   ├── requirements.txt
 │   ├── Dockerfile
+    ├── test_app.py                 # Test cases for Flask app
+    ├── __init__.py                 # Package initialization
 ├── helm_charts/                    # Helm chart for Jenkins 
 │   ├── flask-app/                  # Helm chart for Flask application
 │       └── flask-app/values.yaml
     ├──jenkins/                     # Jenkins Helm chart
 │       └── jenkins-values.yaml     # Custom values for Jenkins deployment
+├── Jenkinsfile                     # Jenkins pipeline configuration
 ├── acl.tf                          # Network ACL configuration
 ├── ec2.tf                          # EC2 instances (bastion host, k3s nodes)
 ├── vpc.tf                          # VPC configuration
@@ -295,6 +300,81 @@ helm install flask-app ./flask-app
 # Open service in browser
 minikube service flask-app
 ```
+
+### Jenkins Pipeline
+The pipeline automatically executes the following stages:
+1. **Checkout** - retrieves code from repository
+2. **Build App** - installs Python dependencies
+3. **Test App** - runs application tests with pytest
+4. **Security Check** - performs security analysis with SonarCloud
+5. **Docker Build & Push** - builds and publishes Docker image to Docker Hub
+6. **Install Helm** - downloads and installs Helm
+7. **Deploy to Kubernetes** - deploys application to minikube using Helm
+8. **Verify App** - checks application functionality
+
+#### Prerequisites
+
+- Jenkins with installed plugins: Docker, Kubernetes, Pipeline
+- Configured credentials in Jenkins:
+    - `github-creds` for GitHub repository access
+    - `dockerhub-credentials` for Docker Hub
+    - `SONAR_TOKEN` for SonarCloud integration
+    - `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` for notifications
+- Kubernetes cluster (minikube)
+- Helm 3.x
+
+#### Configuration
+
+Main parameters in `values.yaml`:
+- `image.repository` - Docker image repository
+- `image.tag` - image tag (set automatically by Jenkins)
+- `service.port` - service port (8080)
+- `serviceAccount.create` - ServiceAccount creation flag
+
+### Local Development
+#### Running the Application
+```
+pip install -r flask_app/requirements.txt
+cd flask_app python main.py
+```
+#### Docker
+```
+cd flask_app docker build -t flask-app .
+docker run -p 8080:8080 flask-app
+```
+
+#### Testing
+```
+cd flask_app pytest test_app.py
+```
+#### Helm Deployment
+```
+helm upgrade --install flask-app ./helm_charts/flask-app
+--set image.repository=your-repo/flask-app
+--set image.tag=latest
+--set serviceAccount.create=false
+```
+### Monitoring and Debugging
+```
+kubectl get pods -n jenkins
+kubectl get service flask-app -n jenkins
+curl [http://flask-app.jenkins.svc.cluster.local:8080/](http://flask-app.jenkins.svc.cluster.local:8080/)
+```
+### Environment Variables
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `FLASK_APP` | Main application file | `main.py` |
+| `BUILD_NUMBER` | Jenkins build number | Set automatically |
+
+### Pipeline Features
+
+- **Automated Triggers**: Polls SCM every minute for changes
+- **Multi-container Agents**: Uses Python, Docker, and Jenkins containers
+- **Security Scanning**: Integrates with SonarCloud for code quality analysis
+- **Docker Registry**: Pushes images to Docker Hub with build number and latest tags
+- **Kubernetes Deployment**: Uses Helm for deployment with wait conditions
+- **Notifications**: Sends Telegram notifications on success/failure
 
 ## Contact
 For questions, reach out to: anikejoksana@gmail.com
