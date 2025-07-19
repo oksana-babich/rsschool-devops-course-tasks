@@ -126,7 +126,7 @@ pipeline {
             steps {
                 sh """
                     ./helm upgrade --install flask-app ./helm_charts/flask-app \
-                        --namespace default \
+                        --namespace jenkins \
                         --set image.repository=aksanababich1/rsschool-flask-app \
                         --set image.tag=\${BUILD_NUMBER} \
                         --set image.pullPolicy=IfNotPresent
@@ -135,7 +135,7 @@ pipeline {
         }
         stage('Verify App') {
             steps {
-                sh 'curl -v http://flask-app.default.svc.cluster.local:8080/'
+                sh 'curl -v http://flask-app.jenkins.svc.cluster.local:8080/'
             }
         }
     }
