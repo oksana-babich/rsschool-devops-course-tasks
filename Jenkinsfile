@@ -63,27 +63,27 @@ pipeline {
             }
         }
 
-//         stage('Security check with SonarCloud') {
-//             steps {
-//                 container('python') {
-//                     withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
-//                         sh '''
-//                             apt-get update -qq && apt-get install -y --no-install-recommends unzip wget openjdk-17-jre-headless
-//                             wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-//                             unzip -q sonar-scanner-cli-*.zip
-//                             mv sonar-scanner-5.0.1.3006-linux sonar-scanner
-//                             export PATH=$PWD/sonar-scanner/bin:$PATH
-//                             sonar-scanner \
-//                                 -Dsonar.projectKey=oksana-babich_rsschool-devops-course-tasks \
-//                                 -Dsonar.organization=oksana-babich \
-//                                 -Dsonar.sources=flask_app \
-//                                 -Dsonar.host.url=https://sonarcloud.io \
-//                                 -Dsonar.login=$SONAR_TOKEN
-//                         '''
-//                     }
-//                 }
-//             }
-//         }
+        stage('Security check with SonarCloud') {
+            steps {
+                container('python') {
+                    withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            apt-get update -qq && apt-get install -y --no-install-recommends unzip wget openjdk-17-jre-headless
+                            wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+                            unzip -q sonar-scanner-cli-*.zip
+                            mv sonar-scanner-5.0.1.3006-linux sonar-scanner
+                            export PATH=$PWD/sonar-scanner/bin:$PATH
+                            sonar-scanner \
+                                -Dsonar.projectKey=oksana-babich_rsschool-devops-course-tasks \
+                                -Dsonar.organization=oksana-babich \
+                                -Dsonar.sources=flask_app \
+                                -Dsonar.host.url=https://sonarcloud.io \
+                                -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
+                }
+            }
+        }
 
         stage('Docker build and push to Docker Hub') {
             steps {
