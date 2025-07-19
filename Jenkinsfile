@@ -127,7 +127,7 @@ pipeline {
                 sh """
                     ./helm upgrade --install flask-app ./helm_charts/flask-app \
                         --namespace default \
-                        --set image.repository=your-dockerhub-username/my-flask-app \
+                        --set image.repository=aksanababich1/rsschool-flask-app \
                         --set image.tag=\${BUILD_NUMBER} \
                         --set image.pullPolicy=IfNotPresent
                 """
