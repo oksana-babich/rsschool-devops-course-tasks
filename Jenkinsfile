@@ -105,6 +105,7 @@ pipeline {
         stage('Deploy Prometheus monitoring') {
            steps {
                         sh '''
+                                   export PATH="$(pwd):$PATH"
                                    ./monitoring/install_prometheus.sh
                                '''
             }
