@@ -103,46 +103,37 @@ pipeline {
         }
 
         stage('Deploy Prometheus monitoring') {
-                    steps {
+           steps {
                         sh '''
-                                   curl -LO "https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl"
-                                   chmod +x kubectl
-                                   mv kubectl /usr/local/bin/kubectl
-
                                    ./monitoring/install_prometheus.sh
                                '''
             }
         }
 
-         stage('Create Grafana admin secret') {
-                    steps {
-                                withCredentials([usernamePassword(
-                                    credentialsId: 'grafana-admin-creds',
-                                    usernameVariable: 'GRAFANA_USER',
-                                    passwordVariable: 'GRAFANA_PASS'
-                                )]) {
-                                    sh '''
-                                        kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
-                                        kubectl delete secret grafana-admin-creds -n monitoring --ignore-not-found
-                                        kubectl create secret generic grafana-admin-creds \
-                                          --from-literal=admin-user=$GRAFANA_USER \
-                                          --from-literal=admin-password=$GRAFANA_PASS \
-                                          -n monitoring
-                                    '''
-                        }
-                    }
-                }
-
-                stage('Install Grafana') {
-                    steps {
+        stage('Deploy Grafana') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'grafana-admin-creds',
+                        usernameVariable: 'GRAFANA_USER',
+                        passwordVariable: 'GRAFANA_PASS'
+                    )]) {
                         sh '''
-                            ./helm upgrade --install grafana bitnami/grafana \
-                              --namespace monitoring \
-                              --values monitoring/values-grafana.yaml \
-                              --wait --timeout 300s
+                            chmod +x ./install_grafana.sh
+                            ./install_grafana.sh
                         '''
                     }
                 }
+            }
+            post {
+                success {
+                    echo '✅ Grafana deployed successfully!'
+                }
+                failure {
+                    echo '❌ Grafana deployment failed!'
+                }
+            }
+        }
 
 
         stage('Deploy App to minikube from Docker Hub') {
