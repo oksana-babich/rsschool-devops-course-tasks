@@ -1,0 +1,26 @@
+admin:
+  existingSecret: grafana-admin-creds
+  userKey: admin-user
+  passwordKey: admin-password
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus-server.monitoring.svc.cluster.local
+        isDefault: true
+
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClassName: ""
+
+service:
+  type: ClusterIP
+
+auth:
+  anonymous:
+    enabled: false

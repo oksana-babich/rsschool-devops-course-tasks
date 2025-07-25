@@ -39,7 +39,7 @@ pipeline {
             steps {
                 git(
                     url: 'https://github.com/oksana-babich/rsschool-devops-course-tasks.git',
-                    branch: 'task_6',
+                    branch: 'task_7',
                     credentialsId: 'github-creds'
                 )
             }
@@ -121,6 +121,42 @@ pipeline {
                 '''
             }
         }
+        stage('Deploy Prometheus monitoring') {
+                    steps {
+                        sh './monitoring/install_prometheus.sh'
+            }
+        }
+
+         stage('Create Grafana admin secret') {
+                    steps {
+                        withCredentials([usernamePassword(
+                            credentialsId: 'grafana-admin-creds',
+                            usernameVariable: 'GRAFANA_USER',
+                            passwordVariable: 'GRAFANA_PASS'
+                        )]) {
+                            sh '''
+                                kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+                                kubectl delete secret grafana-admin-creds -n monitoring --ignore-not-found
+                                kubectl create secret generic grafana-admin-creds \
+                                  --from-literal=admin-user=$GRAFANA_USER \
+                                  --from-literal=admin-password=$GRAFANA_PASS \
+                                  -n monitoring
+                            '''
+                        }
+                    }
+                }
+
+                stage('Install Grafana') {
+                    steps {
+                        sh '''
+                            ./helm upgrade --install grafana bitnami/grafana \
+                              --namespace monitoring \
+                              --values monitoring/values-grafana.yaml \
+                              --wait --timeout 300s
+                        '''
+                    }
+                }
+
 
         stage('Deploy App to minikube from Docker Hub') {
             steps {
