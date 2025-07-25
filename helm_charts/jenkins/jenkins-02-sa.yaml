@@ -31,6 +31,6 @@ roleRef:
   kind: ClusterRole
   name: jenkins
 subjects:
-  - kind: ServiceAccount
-    name: jenkins
-    namespace: jenkins
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: system:serviceaccounts:jenkins
