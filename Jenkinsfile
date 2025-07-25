@@ -9,6 +9,7 @@ pipeline {
             apiVersion: v1
             kind: Pod
             spec:
+              serviceAccountName: jenkins
               containers:
                 - name: jnlp
                   image: jenkins/inbound-agent:3309.v27b_9314fd1a_4-6
@@ -25,6 +26,11 @@ pipeline {
                   volumeMounts:
                     - name: docker-sock
                       mountPath: /var/run/docker.sock
+
+                - name: helm
+                  image: lachlanevenson/k8s-helm:v3.10.2
+                  command: ["cat"]
+                  tty: true
 
               volumes:
                 - name: docker-sock
@@ -102,39 +108,46 @@ pipeline {
             }
         }
 
-        stage('Deploy Prometheus monitoring') {
-           steps {
-                        sh '''
-                                   export PATH="$(pwd):$PATH"
-                                   ./monitoring/install_prometheus.sh
-                               '''
-            }
-        }
-
-        stage('Deploy Grafana') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(
-                        credentialsId: 'grafana-admin-creds',
-                        usernameVariable: 'GRAFANA_USER',
-                        passwordVariable: 'GRAFANA_PASS'
-                    )]) {
-                        sh '''
-                            chmod +x ./install_grafana.sh
-                            ./install_grafana.sh
-                        '''
+         stage('Add Helm Repository') {
+                    steps {
+                        container('helm') {
+                            sh '''
+                            helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+                            helm repo add grafana https://grafana.github.io/helm-charts
+                            helm repo update
+                            '''
+                        }
                     }
                 }
-            }
-            post {
-                success {
-                    echo '✅ Grafana deployed successfully!'
+
+                stage('Deploy Prometheus') {
+                    steps {
+                        container('helm') {
+                            dir('deployment/monitoring') {
+                                sh '''
+                                helm upgrade --install my-prometheus prometheus-community/prometheus \
+                                --namespace monitoring \
+                                --create-namespace \
+                                --values values-prometheus.yaml
+                                '''
+
+                        }
+                    }
                 }
-                failure {
-                    echo '❌ Grafana deployment failed!'
+
+                stage('Deploy Grafana') {
+                    steps {
+                        container('helm') {
+                            dir('deployment/monitoring') {
+                                sh '''
+                                helm upgrade --install my-grafana grafana/grafana \
+                                --namespace monitoring \
+                                --values values-grafana.yaml
+                                '''
+                            }
+                        }
+                    }
                 }
-            }
-        }
 
 
         stage('Deploy App to minikube from Docker Hub') {
