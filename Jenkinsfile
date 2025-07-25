@@ -123,7 +123,7 @@ pipeline {
                 stage('Deploy Prometheus') {
                     steps {
                         container('helm') {
-                            dir('deployment/monitoring') {
+                            dir('monitoring') {
                                 sh '''
                                 helm upgrade --install my-prometheus prometheus-community/prometheus \
                                 --namespace monitoring \
@@ -138,7 +138,7 @@ pipeline {
                 stage('Deploy Grafana') {
                     steps {
                         container('helm') {
-                            dir('deployment/monitoring') {
+                            dir('monitoring') {
                                 sh '''
                                 helm upgrade --install my-grafana grafana/grafana \
                                 --namespace monitoring \
