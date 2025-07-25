@@ -299,7 +299,6 @@ helm install flask-app ./flask-app
 # Open service in browser
 minikube service flask-app
 ```
-
 ### Jenkins Pipeline
 The pipeline automatically executes the following stages:
 1. **Checkout** - retrieves code from repository
@@ -374,6 +373,7 @@ curl [http://flask-app.jenkins.svc.cluster.local:8080/](http://flask-app.jenkins
 - **Docker Registry**: Pushes images to Docker Hub with build number and latest tags
 - **Kubernetes Deployment**: Uses Helm for deployment with wait conditions
 - **Notifications**: Sends Telegram notifications on success/failure
+
 
 ## Contact
 For questions, reach out to: anikejoksana@gmail.com
