@@ -25,6 +25,12 @@ pipeline {
                   volumeMounts:
                     - name: docker-sock
                       mountPath: /var/run/docker.sock
+
+                - name: tools
+                  image: bitnami/kubectl:latest
+                  command: ["cat"]
+                  tty: true
+
               volumes:
                 - name: docker-sock
                   hostPath:
@@ -90,37 +96,42 @@ pipeline {
             }
         }
 
-        stage('Install Helm') {
-            steps {
-                sh '''
-                curl -LO https://get.helm.sh/helm-v3.18.4-linux-amd64.tar.gz
-                tar -zxvf helm-v3.18.4-linux-amd64.tar.gz
-                mv linux-amd64/helm ./helm
-                chmod +x ./helm
-                '''
-            }
-        }
+//         stage('Install Helm') {
+//             steps {
+//                 sh '''
+//                 curl -LO https://get.helm.sh/helm-v3.18.4-linux-amd64.tar.gz
+//                 tar -zxvf helm-v3.18.4-linux-amd64.tar.gz
+//                 mv linux-amd64/helm ./helm
+//                 chmod +x ./helm
+//                 '''
+//             }
+//         }
+
         stage('Deploy Prometheus monitoring') {
                     steps {
-                        sh './monitoring/install_prometheus.sh'
+                        container('tools') {
+                                    sh './monitoring/install_prometheus.sh'
+                 }
             }
         }
 
          stage('Create Grafana admin secret') {
                     steps {
-                        withCredentials([usernamePassword(
-                            credentialsId: 'grafana-admin-creds',
-                            usernameVariable: 'GRAFANA_USER',
-                            passwordVariable: 'GRAFANA_PASS'
-                        )]) {
-                            sh '''
-                                kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
-                                kubectl delete secret grafana-admin-creds -n monitoring --ignore-not-found
-                                kubectl create secret generic grafana-admin-creds \
-                                  --from-literal=admin-user=$GRAFANA_USER \
-                                  --from-literal=admin-password=$GRAFANA_PASS \
-                                  -n monitoring
-                            '''
+                            container('tools') {
+                                withCredentials([usernamePassword(
+                                    credentialsId: 'grafana-admin-creds',
+                                    usernameVariable: 'GRAFANA_USER',
+                                    passwordVariable: 'GRAFANA_PASS'
+                                )]) {
+                                    sh '''
+                                        kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+                                        kubectl delete secret grafana-admin-creds -n monitoring --ignore-not-found
+                                        kubectl create secret generic grafana-admin-creds \
+                                          --from-literal=admin-user=$GRAFANA_USER \
+                                          --from-literal=admin-password=$GRAFANA_PASS \
+                                          -n monitoring
+                                    '''
+                                }
                         }
                     }
                 }
