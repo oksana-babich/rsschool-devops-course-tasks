@@ -130,7 +130,7 @@ pipeline {
                                 --create-namespace \
                                 --values values-prometheus.yaml
                                 '''
-
+                            }
                         }
                     }
                 }
