@@ -26,11 +26,6 @@ pipeline {
                     - name: docker-sock
                       mountPath: /var/run/docker.sock
 
-                - name: tools
-                  image: bitnami/kubectl:latest
-                  command: ["cat"]
-                  tty: true
-
               volumes:
                 - name: docker-sock
                   hostPath:
@@ -96,28 +91,31 @@ pipeline {
             }
         }
 
-//         stage('Install Helm') {
-//             steps {
-//                 sh '''
-//                 curl -LO https://get.helm.sh/helm-v3.18.4-linux-amd64.tar.gz
-//                 tar -zxvf helm-v3.18.4-linux-amd64.tar.gz
-//                 mv linux-amd64/helm ./helm
-//                 chmod +x ./helm
-//                 '''
-//             }
-//         }
+        stage('Install Helm') {
+            steps {
+                sh '''
+                curl -LO https://get.helm.sh/helm-v3.18.4-linux-amd64.tar.gz
+                tar -zxvf helm-v3.18.4-linux-amd64.tar.gz
+                mv linux-amd64/helm ./helm
+                chmod +x ./helm
+                '''
+            }
+        }
 
         stage('Deploy Prometheus monitoring') {
                     steps {
-                        container('tools') {
-                                    sh './monitoring/install_prometheus.sh'
-                 }
+                        sh '''
+                                   curl -LO "https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl"
+                                   chmod +x kubectl
+                                   mv kubectl /usr/local/bin/kubectl
+
+                                   ./monitoring/install_prometheus.sh
+                               '''
             }
         }
 
          stage('Create Grafana admin secret') {
                     steps {
-                            container('tools') {
                                 withCredentials([usernamePassword(
                                     credentialsId: 'grafana-admin-creds',
                                     usernameVariable: 'GRAFANA_USER',
@@ -131,7 +129,6 @@ pipeline {
                                           --from-literal=admin-password=$GRAFANA_PASS \
                                           -n monitoring
                                     '''
-                                }
                         }
                     }
                 }
