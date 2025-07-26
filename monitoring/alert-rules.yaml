@@ -2,13 +2,13 @@ apiVersion: 1
 
 groups:
   - orgId: 1
-    name: High CPU Alert Group
+    name: Node Resource Alerts
     folder: Alerts
     interval: 30s
     rules:
       - uid: high-cpu
         title: High CPU usage on node
-        condition: C
+        condition: A > B
         data:
           - refId: A
             queryType: range
@@ -18,8 +18,6 @@ groups:
             datasourceUid: prometheus
             model:
               expr: rate(node_cpu_seconds_total{mode!="idle"}[5m])
-              interval: ""
-              intervalFactor: 2
               refId: A
           - refId: B
             queryType: range
@@ -34,7 +32,38 @@ groups:
         execErrState: Error
         for: 1m
         annotations:
-          summary: "High CPU usage on node"
+          summary: "High CPU usage detected on node"
+        labels:
+          severity: critical
+        contactPoint: email-contact
+
+      - uid: low-ram
+        title: Low RAM available on node
+        condition: A < B
+        data:
+          - refId: A
+            queryType: range
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes
+              refId: A
+          - refId: B
+            queryType: range
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: 0.1
+              refId: B
+        noDataState: NoData
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "Low available RAM detected on node"
         labels:
           severity: critical
         contactPoint: email-contact
