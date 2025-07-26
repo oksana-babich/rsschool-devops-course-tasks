@@ -17,7 +17,7 @@ groups:
               to: 0
             datasourceUid: prometheus
             model:
-              expr: rate(node_cpu_seconds_total{mode!="idle"}[5m])
+              expr: rate(node_cpu_seconds_total{mode!="idle"}[1m])
               refId: A
           - refId: B
             queryType: range
