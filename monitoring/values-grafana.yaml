@@ -28,6 +28,18 @@ grafana.ini:
     skip_verify: true
     startTLS_policy: OpportunisticStartTLS
 
+#env:
+#  - name: SMTP_USER
+#    valueFrom:
+#      secretKeyRef:
+#        name: grafana-smtp-secret
+#        key: smtp_user
+#  - name: SMTP_PASSWORD
+#    valueFrom:
+#      secretKeyRef:
+#        name: grafana-smtp-secret
+#        key: smtp_password
+
 env:
   SMTP_USER:
     valueFrom:
