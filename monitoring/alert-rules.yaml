@@ -35,7 +35,7 @@ groups:
           summary: "High CPU usage detected on node"
         labels:
           severity: critical
-        contactPoint: email-contact
+        #contactPoint: email-contact
         receivers:
           - name: email-contact
 
@@ -68,6 +68,6 @@ groups:
           summary: "Low available RAM detected on node"
         labels:
           severity: critical
-        contactPoint: email-contact
+        #contactPoint: email-contact
         receivers:
           - name: email-contact
