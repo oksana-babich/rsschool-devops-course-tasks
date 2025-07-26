@@ -1,0 +1,40 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: High CPU Alert Group
+    folder: Alerts
+    interval: 30s
+    rules:
+      - uid: high-cpu
+        title: High CPU usage on node
+        condition: C
+        data:
+          - refId: A
+            queryType: range
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(node_cpu_seconds_total{mode!="idle"}[5m])
+              interval: ""
+              intervalFactor: 2
+              refId: A
+          - refId: B
+            queryType: range
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: 0.9
+              refId: B
+        noDataState: NoData
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "High CPU usage on node"
+        labels:
+          severity: critical
+        contactPoint: email-contact

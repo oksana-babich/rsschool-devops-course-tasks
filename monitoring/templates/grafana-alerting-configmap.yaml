@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alerting-provisioning
+  namespace: monitoring
+data:
+  alertrules.yaml: |-
+    {{ .Files.Get "alert-rules.yaml" | indent 4 }}
+  contactpoints.yaml: |-
+    {{ .Files.Get "contact-points.yaml" | indent 4 }}

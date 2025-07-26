@@ -16,3 +16,36 @@ datasources:
         url: http://my-prometheus-server.monitoring.svc.cluster.local
         isDefault: true
         editable: true
+
+grafana.ini:
+  smtp:
+    enabled: true
+    host: smtp.mail.ru:587
+    user: ${SMTP_USER}
+    password: ${SMTP_PASSWORD}
+    from_address: ${SMTP_USER}
+    from_name: Grafana
+    skip_verify: true
+    startTLS_policy: OpportunisticStartTLS
+
+  env:
+    - name: SMTP_USER
+      valueFrom:
+        secretKeyRef:
+          name: grafana-smtp-secret
+          key: smtp_user
+    - name: SMTP_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: grafana-smtp-secret
+
+  extraVolumeMounts:
+    - name: grafana-alerting-provisioning
+      mountPath: /etc/grafana/provisioning/alerting
+      readOnly: true
+
+  extraVolumes:
+    - name: grafana-alerting-provisioning
+      configMap:
+        name:
+          grafana-alerting-provisioning        key: smtp_password
