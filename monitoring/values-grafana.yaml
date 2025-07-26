@@ -23,7 +23,7 @@ grafana.ini:
     host: smtp.mail.ru:587
     user: ${SMTP_USER}
     password: ${SMTP_PASSWORD}
-    from_address: ${SMTP_USER}
+    from_address: "oksana@babich.by"
     from_name: Grafana
     skip_verify: true
     startTLS_policy: OpportunisticStartTLS
