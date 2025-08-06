@@ -9,6 +9,7 @@ pipeline {
             apiVersion: v1
             kind: Pod
             spec:
+              serviceAccountName: jenkins
               containers:
                 - name: jnlp
                   image: jenkins/inbound-agent:3309.v27b_9314fd1a_4-6
@@ -25,6 +26,13 @@ pipeline {
                   volumeMounts:
                     - name: docker-sock
                       mountPath: /var/run/docker.sock
+
+
+                - name: helm
+                  image: lachlanevenson/k8s-helm:v3.10.2
+                  command: ["cat"]
+                  tty: true
+
               volumes:
                 - name: docker-sock
                   hostPath:
@@ -39,7 +47,7 @@ pipeline {
             steps {
                 git(
                     url: 'https://github.com/oksana-babich/rsschool-devops-course-tasks.git',
-                    branch: 'task_6',
+                    branch: 'task_7',
                     credentialsId: 'github-creds'
                 )
             }
@@ -121,6 +129,48 @@ pipeline {
                 '''
             }
         }
+
+         stage('Add Helm Repository') {
+                    steps {
+                        container('helm') {
+                            sh '''
+                            helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+                            helm repo add grafana https://grafana.github.io/helm-charts
+                            helm repo update
+                            '''
+                        }
+                    }
+                }
+
+                stage('Deploy Prometheus') {
+                    steps {
+                        container('helm') {
+                            dir('monitoring') {
+                                sh '''
+                                helm upgrade --install my-prometheus prometheus-community/prometheus \
+                                --namespace monitoring \
+                                --create-namespace \
+                                --values values-prometheus.yaml
+                                '''
+                            }
+                        }
+                    }
+                }
+
+                stage('Deploy Grafana') {
+                    steps {
+                        container('helm') {
+                            dir('monitoring') {
+                                sh '''
+                                helm upgrade --install my-grafana grafana/grafana \
+                                --namespace monitoring \
+                                --values values-grafana.yaml
+                                '''
+                            }
+                        }
+                    }
+                }
+
 
         stage('Deploy App to minikube from Docker Hub') {
             steps {

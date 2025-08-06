@@ -1,4 +1,4 @@
-добавь # rsschool-devops-course-tasks
+# rsschool-devops-course-tasks
 DevOps Course
 
 ![Terraform CI/CD](https://github.com/oksana-babich/rsschool-devops-course-tasks/actions/workflows/terraform.yaml/badge.svg)
@@ -8,6 +8,8 @@ ______________________________________________
 This project contains Terraform configuration for creating AWS infrastructure with automated CI/CD pipeline through GitHub Actions.
 It also includes the setup and verification of a lightweight Kubernetes cluster (k3s) deployed on EC2 instances, accessible via a bastion host.
 This project is configured for automated build and deployment using Jenkins and Helm.
+Monitoring and alerting are implemented using Prometheus, Grafana, and Alertmanager, deployed via Helm.
+
 
 
 ## 🏗️ Infrastructure Architecture
@@ -118,6 +120,12 @@ terraform apply
 │       └── flask-app/values.yaml
     ├──jenkins/                     # Jenkins Helm chart
 │       └── jenkins-values.yaml     # Custom values for Jenkins deployment
+├── monitoring/                     # Monitoring stack configuration
+│   ├── alert-rules.yaml            # Alert rules for Prometheus
+│   ├── contact-points.yaml         # Contact points for Alertmanager
+    ├── grafana.ini                 # Grafana configuration file
+    ├── values-grafana.yaml         # Values for Grafana Helm chart
+    ├── values-prometheus.yaml     # Values for Prometheus Helm chart
 ├── Jenkinsfile                     # Jenkins pipeline configuration
 ├── acl.tf                          # Network ACL configuration
 ├── ec2.tf                          # EC2 instances (bastion host, k3s nodes)
@@ -299,6 +307,7 @@ helm install flask-app ./flask-app
 # Open service in browser
 minikube service flask-app
 ```
+
 ### Jenkins Pipeline
 The pipeline automatically executes the following stages:
 1. **Checkout** - retrieves code from repository
@@ -374,6 +383,42 @@ curl [http://flask-app.jenkins.svc.cluster.local:8080/](http://flask-app.jenkins
 - **Kubernetes Deployment**: Uses Helm for deployment with wait conditions
 - **Notifications**: Sends Telegram notifications on success/failure
 
+## 📈 Monitoring: Prometheus, Grafana & Alertmanager
+🎯 Objective
+Deploy a monitoring stack for the Kubernetes cluster using Prometheus, Grafana, and Alertmanager. Metrics are collected via exporters, visualized in Grafana dashboards, and alerts are sent via email using an SMTP server.
+
+### 🧩 Technologies Used
+- Helm – to install Prometheus and Grafana from Bitnami charts
+- Prometheus – for metrics collection and storage
+- Node Exporter / Kube State Metrics – exporters for system and Kubernetes metrics
+- Grafana – for metrics visualization and dashboards
+- Alertmanager – for alert processing and routing
+- SMTP – to send alert notifications via email
+
+### 🔧 Installation and Configuration
+### 📦 Prometheus Installation
+Add Helm repository for Prometheus and Grafana:
+```bash
+ helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+ helm repo add grafana https://grafana.github.io/helm-charts
+ helm repo update
+```
+### 📊 Grafana Configuration
+- Prometheus added as a data source
+- Custom dashboard created with panels for:
+CPU usage,
+Memory usage,
+Disk space usage
+-Dashboard exported to JSON (grafana-dashboard.json)
+
+### 📧 Automation Alertmanager and SMTP Setup  
+## Installation and configuration fully managed via Helm and YAML (Infrastructure as Code)
+- SMTP server
+- Configured via ```grafana.ini```
+- Contact Points configured in Grafana (email) ```contact-points.yaml```
+- Alert rules added ```alert-rules.yaml``` for:
+-- 🔥 High CPU usage
+-- 🧠 Low memory availability
 
 ## Contact
 For questions, reach out to: anikejoksana@gmail.com
